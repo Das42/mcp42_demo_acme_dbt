@@ -1,9 +1,7 @@
 version: 2
 
-models:
-  # Standard landing models - full table refresh
-  # Place models in landing/standard/ folder
+models: []
 
-  # Incremental landing models - append or merge new records
-  # Place models in landing/incremental/ folder
-  # Use unique_key config for merge strategy
+# Landing layer models would be placed here if raw data
+# needed transformation before staging.
+# Currently, all raw data is accessed via sources defined in _sources.yml

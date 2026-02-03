@@ -1,10 +1,165 @@
 version: 2
 
 models:
-  # Standard staging models - views with transient backing
-  # Place models in staging/standard/ folder
-  # These clean and standardize raw data
+  # Core entities
+  - name: stg_readers
+    description: Cleaned reader/subscriber profiles with standardized fields
+    columns:
+      - name: reader_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: reader_id
+        description: Natural key from source system
+      - name: email
+        description: Lowercase email address
+      - name: full_name
+        description: Concatenated first and last name
 
-  # Incremental staging models - transient incremental tables
-  # Place models in staging/incremental/ folder
-  # Use for large datasets requiring incremental processing
+  - name: stg_publications
+    description: Publication metadata (newspapers, magazines, digital properties)
+    columns:
+      - name: publication_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: publication_id
+        description: Natural key from source system
+
+  - name: stg_content_articles
+    description: Article and content metadata
+    columns:
+      - name: article_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: Natural key from source system
+
+  # Subscriptions
+  - name: stg_subscriptions
+    description: Subscription records with plan details
+    columns:
+      - name: subscription_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: subscription_id
+        description: Natural key from source system
+
+  - name: stg_subscription_events
+    description: Subscription lifecycle events (new, renewal, cancel, upgrade, downgrade)
+    columns:
+      - name: subscription_event_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key from source system
+
+  # Digital engagement
+  - name: stg_web_events
+    description: Website clickstream events with UTM tracking
+    columns:
+      - name: web_event_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key from source system
+
+  - name: stg_mobile_events
+    description: Mobile app events and engagement
+    columns:
+      - name: mobile_event_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key from source system
+
+  # Print distribution
+  - name: stg_print_editions
+    description: Print edition/run metadata
+    columns:
+      - name: print_edition_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: edition_id
+        description: Natural key from source system
+
+  - name: stg_print_deliveries
+    description: Individual print delivery records with status
+    columns:
+      - name: print_delivery_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: delivery_id
+        description: Natural key from source system
+
+  - name: stg_distribution_routes
+    description: Delivery routes and zones
+    columns:
+      - name: distribution_route_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: route_id
+        description: Natural key from source system
+
+  - name: stg_distribution_centers
+    description: Distribution center locations
+    columns:
+      - name: distribution_center_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: center_id
+        description: Natural key from source system
+
+  # Marketing
+  - name: stg_marketing_campaigns
+    description: Marketing campaign metadata and budgets
+    columns:
+      - name: marketing_campaign_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: Natural key from source system
+
+  - name: stg_marketing_sends
+    description: Marketing message sends (email, push, direct mail)
+    columns:
+      - name: marketing_send_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: send_id
+        description: Natural key from source system
+
+  - name: stg_marketing_interactions
+    description: Marketing interaction events (opens, clicks, conversions)
+    columns:
+      - name: marketing_interaction_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: interaction_id
+        description: Natural key from source system

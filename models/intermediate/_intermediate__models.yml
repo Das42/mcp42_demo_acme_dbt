@@ -1,10 +1,103 @@
 version: 2
 
 models:
-  # Standard intermediate models - tables with business logic
-  # Place models in intermediate/standard/ folder
-  # These join, aggregate, and transform staged data
+  - name: int_readership_events
+    description: >
+      Unified readership events combining web clickstream, mobile app events,
+      and print delivery into a single normalized event stream. Core grain
+      for analyzing reader engagement across all channels.
+    columns:
+      - name: readership_event_pk
+        description: Surrogate primary key (from source event PK)
+        tests:
+          - unique
+          - not_null
+      - name: channel
+        description: Engagement channel (web, mobile, print)
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile', 'print']
+      - name: reader_id
+        description: Reader identifier (null for anonymous web/mobile)
+      - name: event_type
+        description: Type of engagement event
+      - name: event_timestamp
+        description: When the event occurred
+      - name: article_id
+        description: Article being engaged with (null for non-article events)
 
-  # Incremental intermediate models - incremental business transformations
-  # Place models in intermediate/incremental/ folder
-  # Use for complex transformations on large datasets
+  - name: int_subscriber_status
+    description: >
+      Current subscriber status enriched with reader profile and subscription
+      history. Point-in-time view of each subscription's state.
+    columns:
+      - name: subscription_pk
+        description: Primary key from subscription
+        tests:
+          - unique
+          - not_null
+      - name: reader_id
+        description: Associated reader
+      - name: is_active
+        description: Whether subscription is currently active
+      - name: is_at_risk_expiring
+        description: Active subscription ending within 30 days
+      - name: is_churned
+        description: Subscription has been cancelled
+      - name: tenure_months
+        description: Months since subscription start
+
+  - name: int_content_engagement
+    description: >
+      Aggregated content engagement metrics by article. Combines web and
+      mobile engagement for unified content performance analysis.
+    columns:
+      - name: content_engagement_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: Article identifier
+      - name: total_events
+        description: Total engagement events
+      - name: unique_readers
+        description: Distinct readers engaged
+      - name: avg_engagement_seconds
+        description: Average time spent engaging
+
+  - name: int_marketing_touchpoints
+    description: >
+      Normalized marketing touchpoints combining sends and interactions.
+      Provides unified view of all marketing contacts with readers.
+    columns:
+      - name: marketing_touchpoint_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: send_id
+        description: Marketing send identifier
+      - name: was_opened
+        description: Whether message was opened
+      - name: was_clicked
+        description: Whether any link was clicked
+      - name: had_conversion
+        description: Whether a conversion occurred
+
+  - name: int_print_distribution
+    description: >
+      Print distribution performance combining deliveries, routes, and
+      distribution centers. Operational view of print delivery.
+    columns:
+      - name: print_delivery_pk
+        description: Primary key from print delivery
+        tests:
+          - unique
+          - not_null
+      - name: is_delivered
+        description: Whether delivery was successful
+      - name: is_on_time
+        description: Delivered within 6 hours of scheduled time
+      - name: delivery_variance_hours
+        description: Hours difference from scheduled delivery
