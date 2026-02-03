@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  # Standard staging models - views with transient backing
+  # Place models in staging/standard/ folder
+  # These clean and standardize raw data
+
+  # Incremental staging models - transient incremental tables
+  # Place models in staging/incremental/ folder
+  # Use for large datasets requiring incremental processing

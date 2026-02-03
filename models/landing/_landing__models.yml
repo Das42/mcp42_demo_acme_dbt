@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  # Standard landing models - full table refresh
+  # Place models in landing/standard/ folder
+
+  # Incremental landing models - append or merge new records
+  # Place models in landing/incremental/ folder
+  # Use unique_key config for merge strategy

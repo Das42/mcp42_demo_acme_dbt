@@ -1,0 +1,74 @@
+name: 'acme_dbt'
+version: '1.0.0'
+
+require-dbt-version: [">=1.7.0", "<2.0.0"]
+
+config-version: 2
+
+profile: 'acme'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  env: "{{ env_var('DBT_ENV', 'dev') }}"
+
+models:
+  acme_dbt:
+    # Landing layer - raw data ingestion
+    landing:
+      +tags: ['landing']
+      +database: "{{ var('env') == 'prod' | iif('landing_prod', 'landing_dev') }}"
+      +materialized: table
+      standard:
+        +materialized: table
+      incremental:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +on_schema_change: sync_all_columns
+
+    # Staging layer - cleaned and standardized
+    staging:
+      +tags: ['staging']
+      +database: "{{ var('env') == 'prod' | iif('staging_prod', 'staging_dev') }}"
+      +materialized: view
+      +transient: true
+      standard:
+        +materialized: view
+      incremental:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +on_schema_change: sync_all_columns
+        +transient: true
+
+    # Intermediate layer - business logic transformations
+    intermediate:
+      +tags: ['intermediate']
+      +database: "{{ var('env') == 'prod' | iif('intermediate_prod', 'intermediate_dev') }}"
+      +materialized: table
+      standard:
+        +materialized: table
+      incremental:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +on_schema_change: sync_all_columns
+
+    # Reporting layer - final business-ready models
+    reporting:
+      +tags: ['reporting']
+      +database: "{{ var('env') == 'prod' | iif('reporting_prod', 'reporting_dev') }}"
+      +materialized: table
+      standard:
+        +materialized: table
+      incremental:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +on_schema_change: sync_all_columns

@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  # Standard reporting models - final presentation tables
+  # Place models in reporting/standard/ folder
+  # These are business-ready for BI tools and analysts
+
+  # Incremental reporting models - incrementally updated reports
+  # Place models in reporting/incremental/ folder
+  # Use for large fact tables and aggregations

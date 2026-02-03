@@ -1,0 +1,27 @@
+# dbt artifacts
+target/
+dbt_packages/
+logs/
+dbt.log
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Compiled files
+*.pyc
+__pycache__/
+
+# Local profiles (use profiles.yml.example as template)
+profiles.yml

@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  # Standard intermediate models - tables with business logic
+  # Place models in intermediate/standard/ folder
+  # These join, aggregate, and transform staged data
+
+  # Incremental intermediate models - incremental business transformations
+  # Place models in intermediate/incremental/ folder
+  # Use for complex transformations on large datasets
