@@ -1,0 +1,249 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw data ingested from operational systems
+    database: "{{ var('env') == 'prod' | iif('landing_prod', 'landing_dev') }}"
+    schema: raw
+    tables:
+      # Core entities
+      - name: readers
+        description: Reader/subscriber profiles from CRM system
+        columns:
+          - name: reader_id
+          - name: email
+          - name: first_name
+          - name: last_name
+          - name: phone_number
+          - name: address_line_1
+          - name: address_line_2
+          - name: city
+          - name: state
+          - name: postal_code
+          - name: country
+          - name: birth_date
+          - name: gender
+          - name: acquisition_source
+          - name: acquisition_campaign_id
+          - name: created_at
+          - name: updated_at
+          - name: is_deleted
+
+      - name: publications
+        description: Publication/edition metadata
+        columns:
+          - name: publication_id
+          - name: publication_name
+          - name: publication_type
+          - name: frequency
+          - name: launch_date
+          - name: is_active
+          - name: created_at
+          - name: updated_at
+
+      - name: content_articles
+        description: Article and content metadata
+        columns:
+          - name: article_id
+          - name: publication_id
+          - name: title
+          - name: slug
+          - name: author_id
+          - name: category
+          - name: subcategory
+          - name: tags
+          - name: word_count
+          - name: publish_date
+          - name: is_premium
+          - name: created_at
+          - name: updated_at
+
+      # Subscription events
+      - name: subscriptions
+        description: Subscription records
+        columns:
+          - name: subscription_id
+          - name: reader_id
+          - name: publication_id
+          - name: plan_type
+          - name: plan_tier
+          - name: channel
+          - name: start_date
+          - name: end_date
+          - name: status
+          - name: monthly_rate
+          - name: billing_frequency
+          - name: auto_renew
+          - name: created_at
+          - name: updated_at
+
+      - name: subscription_events
+        description: Subscription lifecycle events (new, renewal, cancel, etc.)
+        columns:
+          - name: event_id
+          - name: subscription_id
+          - name: reader_id
+          - name: event_type
+          - name: event_timestamp
+          - name: previous_status
+          - name: new_status
+          - name: previous_plan
+          - name: new_plan
+          - name: reason_code
+          - name: reason_text
+          - name: processed_by
+          - name: created_at
+
+      # Digital engagement
+      - name: web_events
+        description: Website clickstream events
+        columns:
+          - name: event_id
+          - name: session_id
+          - name: reader_id
+          - name: anonymous_id
+          - name: event_type
+          - name: event_timestamp
+          - name: page_url
+          - name: page_title
+          - name: referrer_url
+          - name: article_id
+          - name: device_type
+          - name: browser
+          - name: os
+          - name: ip_address
+          - name: geo_country
+          - name: geo_region
+          - name: geo_city
+          - name: utm_source
+          - name: utm_medium
+          - name: utm_campaign
+          - name: utm_content
+          - name: utm_term
+          - name: time_on_page_seconds
+          - name: scroll_depth_percent
+          - name: created_at
+
+      - name: mobile_events
+        description: Mobile app events
+        columns:
+          - name: event_id
+          - name: session_id
+          - name: reader_id
+          - name: device_id
+          - name: event_type
+          - name: event_timestamp
+          - name: screen_name
+          - name: article_id
+          - name: app_version
+          - name: device_model
+          - name: os_name
+          - name: os_version
+          - name: geo_country
+          - name: geo_region
+          - name: geo_city
+          - name: push_enabled
+          - name: time_in_view_seconds
+          - name: scroll_depth_percent
+          - name: created_at
+
+      # Print distribution
+      - name: print_editions
+        description: Print edition runs
+        columns:
+          - name: edition_id
+          - name: publication_id
+          - name: edition_date
+          - name: edition_type
+          - name: page_count
+          - name: print_run_quantity
+          - name: created_at
+
+      - name: print_deliveries
+        description: Print newspaper delivery records
+        columns:
+          - name: delivery_id
+          - name: subscription_id
+          - name: reader_id
+          - name: edition_id
+          - name: route_id
+          - name: scheduled_date
+          - name: delivery_status
+          - name: delivery_timestamp
+          - name: delivery_location
+          - name: carrier_id
+          - name: exception_code
+          - name: exception_notes
+          - name: created_at
+          - name: updated_at
+
+      - name: distribution_routes
+        description: Delivery routes and zones
+        columns:
+          - name: route_id
+          - name: route_name
+          - name: distribution_center_id
+          - name: zone_code
+          - name: carrier_id
+          - name: total_stops
+          - name: route_type
+          - name: is_active
+          - name: created_at
+          - name: updated_at
+
+      - name: distribution_centers
+        description: Distribution center locations
+        columns:
+          - name: center_id
+          - name: center_name
+          - name: address
+          - name: city
+          - name: state
+          - name: postal_code
+          - name: region
+          - name: capacity
+          - name: is_active
+          - name: created_at
+          - name: updated_at
+
+      # Marketing
+      - name: marketing_campaigns
+        description: Marketing campaign metadata
+        columns:
+          - name: campaign_id
+          - name: campaign_name
+          - name: campaign_type
+          - name: channel
+          - name: start_date
+          - name: end_date
+          - name: budget
+          - name: target_audience
+          - name: status
+          - name: created_by
+          - name: created_at
+          - name: updated_at
+
+      - name: marketing_sends
+        description: Marketing message sends (email, push, direct mail)
+        columns:
+          - name: send_id
+          - name: campaign_id
+          - name: reader_id
+          - name: channel
+          - name: template_id
+          - name: send_timestamp
+          - name: status
+          - name: created_at
+
+      - name: marketing_interactions
+        description: Marketing interaction events (opens, clicks, conversions)
+        columns:
+          - name: interaction_id
+          - name: send_id
+          - name: campaign_id
+          - name: reader_id
+          - name: interaction_type
+          - name: interaction_timestamp
+          - name: link_url
+          - name: device_type
+          - name: created_at

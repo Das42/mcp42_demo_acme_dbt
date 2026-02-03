@@ -1,10 +1,6 @@
 version: 2
 
-models:
-  # Standard reporting models - final presentation tables
-  # Place models in reporting/standard/ folder
-  # These are business-ready for BI tools and analysts
+models: []
 
-  # Incremental reporting models - incrementally updated reports
-  # Place models in reporting/incremental/ folder
-  # Use for large fact tables and aggregations
+# Reporting layer reserved for Kimball dimensional model
+# Dimensions and facts will be added here for BI consumption
