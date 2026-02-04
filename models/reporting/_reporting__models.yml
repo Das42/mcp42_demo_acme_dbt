@@ -1,6 +1,172 @@
 version: 2
 
-models: []
+models:
+  - name: dim_reader
+    description: Reader dimension containing demographic and contact information for all readers
+    columns:
+      - name: reader_sk
+        description: Surrogate key for the reader dimension
+        tests:
+          - unique
+          - not_null
+      - name: reader_id
+        description: Natural key from source system
+      - name: email
+        description: Reader email address (lowercase)
+      - name: first_name
+        description: Reader first name
+      - name: last_name
+        description: Reader last name
+      - name: full_name
+        description: Concatenated full name
+      - name: phone_number
+        description: Phone number (digits only)
+      - name: city
+        description: City of residence
+      - name: state
+        description: State/province code (uppercase)
+      - name: country
+        description: Country code (uppercase)
+      - name: birth_date
+        description: Reader date of birth
+      - name: gender
+        description: Reader gender
+      - name: acquisition_source
+        description: Channel through which reader was acquired
+      - name: acquisition_campaign_id
+        description: Marketing campaign that acquired this reader
 
-# Reporting layer reserved for Kimball dimensional model
-# Dimensions and facts will be added here for BI consumption
+  - name: dim_subscription
+    description: Subscription dimension containing plan details and publication information
+    columns:
+      - name: subscription_sk
+        description: Surrogate key for the subscription dimension
+        tests:
+          - unique
+          - not_null
+      - name: subscription_id
+        description: Natural key from source system
+      - name: reader_id
+        description: Foreign key to the reader who owns this subscription
+      - name: publication_id
+        description: Foreign key to the subscribed publication
+      - name: plan_type
+        description: Type of subscription plan (digital, print, bundle)
+      - name: plan_tier
+        description: Tier level (basic, standard, premium)
+      - name: acquisition_channel
+        description: Channel through which subscription was acquired
+      - name: start_date
+        description: Subscription start date
+      - name: end_date
+        description: Subscription end date
+      - name: status
+        description: Current subscription status (active, cancelled, expired, paused)
+      - name: monthly_rate
+        description: Monthly subscription rate in dollars
+      - name: billing_frequency
+        description: Billing cycle frequency (monthly, quarterly, annual)
+      - name: auto_renew
+        description: Whether subscription auto-renews
+      - name: publication_name
+        description: Name of the publication
+      - name: publication_type
+        description: Type of publication (newspaper, magazine)
+      - name: publication_frequency
+        description: Publication frequency (daily, weekly, monthly)
+
+  - name: dim_date
+    description: Date dimension covering 2023-2026 for time-based analysis
+    columns:
+      - name: date_sk
+        description: Surrogate key in YYYYMMDD integer format
+        tests:
+          - unique
+          - not_null
+      - name: date_actual
+        description: The actual calendar date
+      - name: year_actual
+        description: Four-digit year
+      - name: quarter_actual
+        description: Quarter number (1-4)
+      - name: month_actual
+        description: Month number (1-12)
+      - name: week_of_year
+        description: Week number within the year
+      - name: day_of_week
+        description: Day of week (0=Sunday, 6=Saturday)
+      - name: day_of_year
+        description: Day number within the year (1-366)
+      - name: month_name
+        description: Full month name
+      - name: month_name_short
+        description: Abbreviated month name
+      - name: day_name
+        description: Full day name
+      - name: day_name_short
+        description: Abbreviated day name
+      - name: fiscal_year
+        description: Fiscal year (aligned to calendar year)
+      - name: fiscal_quarter
+        description: Fiscal quarter
+      - name: fiscal_month
+        description: Fiscal month
+      - name: year_month_key
+        description: Year-month key in YYYYMM format
+      - name: year_quarter_key
+        description: Year-quarter key
+      - name: is_weekend
+        description: True if Saturday or Sunday
+      - name: is_weekday
+        description: True if Monday through Friday
+      - name: is_last_day_of_month
+        description: True if last day of the month
+
+  - name: fct_subscription_events
+    description: Fact table tracking subscription lifecycle events (signups, renewals, upgrades, downgrades, cancellations)
+    columns:
+      - name: subscription_event_sk
+        description: Surrogate key for the subscription event fact
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key from source system
+      - name: reader_sk
+        description: Foreign key to dim_reader
+      - name: subscription_sk
+        description: Foreign key to dim_subscription
+      - name: event_date_sk
+        description: Foreign key to dim_date
+      - name: reason_code
+        description: Degenerate dimension - reason code for the event
+      - name: reason_text
+        description: Degenerate dimension - reason description
+      - name: processed_by
+        description: Degenerate dimension - system or user that processed the event
+      - name: event_type
+        description: Type of subscription event
+      - name: event_timestamp
+        description: Timestamp when the event occurred
+      - name: event_date
+        description: Date when the event occurred
+      - name: previous_status
+        description: Subscription status before the event
+      - name: new_status
+        description: Subscription status after the event
+      - name: previous_plan
+        description: Plan before the event (for plan changes)
+      - name: new_plan
+        description: Plan after the event (for plan changes)
+      - name: is_signup
+        description: True if this is a new signup event
+      - name: is_renewal
+        description: True if this is a renewal event
+      - name: is_upgrade
+        description: True if this is a plan upgrade
+      - name: is_downgrade
+        description: True if this is a plan downgrade
+      - name: is_cancellation
+        description: True if this is a cancellation event
+      - name: is_plan_change
+        description: True if this is any plan change (upgrade or downgrade)
