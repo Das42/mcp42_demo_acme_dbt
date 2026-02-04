@@ -1,6 +1,187 @@
 version: 2
 
-models: []
+models:
+  # =============================================================================
+  # DIMENSIONS
+  # =============================================================================
 
-# Reporting layer reserved for Kimball dimensional model
-# Dimensions and facts will be added here for BI consumption
+  - name: dim_date
+    description: >
+      Standard date dimension with calendar attributes.
+      Covers a 10-year range centered on the current date.
+    columns:
+      - name: date_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: date_day
+        description: Calendar date
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_reader
+    description: >
+      Reader/subscriber dimension containing customer attributes including
+      demographic, geographic, acquisition, and subscription summary information.
+    columns:
+      - name: reader_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: reader_id
+        description: Natural key from source system
+      - name: is_active_subscriber
+        description: Flag indicating if the reader has at least one active subscription
+      - name: is_subscriber
+        description: Flag indicating if the reader has ever had a subscription
+
+  - name: dim_publication
+    description: >
+      Publication dimension containing newspaper and magazine attributes
+      including publication type, frequency, and status.
+    columns:
+      - name: publication_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: publication_id
+        description: Natural key from source system
+
+  - name: dim_article
+    description: >
+      Article/content dimension containing article metadata including
+      category, author, content attributes, and lifetime engagement summary.
+    columns:
+      - name: article_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: Natural key from source system
+
+  - name: dim_campaign
+    description: >
+      Marketing campaign dimension containing campaign attributes including
+      campaign type, channel, targeting, and budget information.
+    columns:
+      - name: campaign_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: Natural key from source system
+
+  # =============================================================================
+  # FACTS
+  # =============================================================================
+
+  - name: fct_subscription_events
+    description: >
+      Subscription lifecycle events fact table (HIGHEST PRIORITY).
+      Captures all subscriber events including signups, renewals, upgrades,
+      downgrades, cancellations, pauses, and reactivations.
+      Grain: One row per subscription event.
+    columns:
+      - name: subscription_event_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key from source system
+      - name: event_type
+        description: Type of subscription event
+        tests:
+          - accepted_values:
+              values: ['signup', 'renewal', 'cancellation', 'upgrade', 'downgrade', 'pause', 'reactivation']
+      - name: reader_pk
+        description: Foreign key to dim_reader
+      - name: subscription_pk
+        description: Foreign key to subscription
+      - name: event_date_pk
+        description: Foreign key to dim_date
+
+  - name: fct_readership_events
+    description: >
+      Readership engagement fact table capturing all engagement activity
+      across web, mobile, and print channels.
+      Grain: One row per engagement event.
+    columns:
+      - name: readership_event_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: source_event_id
+        description: Natural key from source system
+      - name: channel
+        description: Engagement channel (web, mobile, print)
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile', 'print']
+      - name: reader_pk
+        description: Foreign key to dim_reader
+      - name: article_pk
+        description: Foreign key to dim_article
+      - name: event_date_pk
+        description: Foreign key to dim_date
+
+  - name: fct_content_daily
+    description: >
+      Daily content performance fact table with aggregated article
+      engagement metrics by date.
+      Grain: One row per article per day.
+    columns:
+      - name: content_daily_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: article_pk
+        description: Foreign key to dim_article
+      - name: event_date_pk
+        description: Foreign key to dim_date
+
+  - name: fct_marketing_performance
+    description: >
+      Marketing performance fact table tracking marketing send effectiveness
+      with engagement metrics including opens, clicks, and conversions.
+      Grain: One row per marketing send.
+    columns:
+      - name: marketing_touchpoint_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: send_id
+        description: Natural key from source system
+      - name: reader_pk
+        description: Foreign key to dim_reader
+      - name: campaign_pk
+        description: Foreign key to dim_campaign
+      - name: send_date_pk
+        description: Foreign key to dim_date
+
+  - name: fct_print_deliveries
+    description: >
+      Print delivery fact table tracking distribution operations and
+      delivery performance metrics.
+      Grain: One row per print delivery.
+    columns:
+      - name: print_delivery_pk
+        description: Surrogate primary key
+        tests:
+          - unique
+          - not_null
+      - name: delivery_id
+        description: Natural key from source system
+      - name: reader_pk
+        description: Foreign key to dim_reader
+      - name: scheduled_date_pk
+        description: Foreign key to dim_date
