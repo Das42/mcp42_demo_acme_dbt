@@ -5,8 +5,11 @@
 }}
 
 with readers as (
-    select * from {{ ref('stg_readers') }}
-    where is_deleted = false
+    select *
+    from
+        {{ ref('stg_readers') }}
+    where
+        is_deleted = false
 ),
 
 final as (
@@ -44,7 +47,8 @@ final as (
         created_at,
         updated_at
 
-    from readers
+    from
+        readers
 )
 
 select * from final

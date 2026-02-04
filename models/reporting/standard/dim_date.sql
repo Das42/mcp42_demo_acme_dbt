@@ -44,20 +44,12 @@ final as (
         cast(to_char(date_day, 'YYYYQ') || extract(quarter from date_day) as varchar) as year_quarter_key,
 
         -- Flags
-        case
-            when extract(dayofweek from date_day) in (0, 6) then true
-            else false
-        end as is_weekend,
-        case
-            when extract(dayofweek from date_day) between 1 and 5 then true
-            else false
-        end as is_weekday,
-        case
-            when date_day = last_day(date_day) then true
-            else false
-        end as is_last_day_of_month
+        iff(extract(dayofweek from date_day) in (0, 6), true, false) as is_weekend,
+        iff(extract(dayofweek from date_day) between 1 and 5, true, false) as is_weekday,
+        iff(date_day = last_day(date_day), true, false) as is_last_day_of_month
 
-    from date_spine
+    from
+        date_spine
 )
 
 select * from final

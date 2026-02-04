@@ -5,11 +5,15 @@
 }}
 
 with subscriptions as (
-    select * from {{ ref('stg_subscriptions') }}
+    select *
+    from
+        {{ ref('stg_subscriptions') }}
 ),
 
 publications as (
-    select * from {{ ref('stg_publications') }}
+    select *
+    from
+        {{ ref('stg_publications') }}
 ),
 
 final as (
@@ -48,9 +52,10 @@ final as (
         s.created_at,
         s.updated_at
 
-    from subscriptions s
-    left join publications p
-        on s.publication_id = p.publication_id
+    from
+        subscriptions as s
+        left join publications as p
+            on s.publication_id = p.publication_id
 )
 
 select * from final
