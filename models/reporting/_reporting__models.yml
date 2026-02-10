@@ -1,6 +1,157 @@
 version: 2
 
-models: []
+models:
+  - name: dim_reader
+    description: >
+      Reader dimension containing demographics, contact information, geography,
+      and acquisition details. One row per reader.
+    columns:
+      - name: reader_key
+        description: Surrogate primary key for the reader dimension
+        tests:
+          - unique
+          - not_null
+      - name: reader_id
+        description: Natural key from source system
+      - name: full_name
+        description: Concatenated first and last name
+      - name: email
+        description: Reader email address (lowercased, trimmed)
+      - name: gender
+        description: Reader gender
+      - name: city
+        description: Reader city
+      - name: state
+        description: Reader state (uppercased)
+      - name: country
+        description: Reader country (uppercased)
+      - name: acquisition_source
+        description: Channel through which the reader was acquired
+      - name: is_deleted
+        description: Soft-delete flag from source system
 
-# Reporting layer reserved for Kimball dimensional model
-# Dimensions and facts will be added here for BI consumption
+  - name: dim_publication
+    description: >
+      Publication dimension containing metadata about each publication
+      including type, frequency, and active status. One row per publication.
+    columns:
+      - name: publication_key
+        description: Surrogate primary key for the publication dimension
+        tests:
+          - unique
+          - not_null
+      - name: publication_id
+        description: Natural key from source system
+      - name: publication_name
+        description: Name of the publication
+      - name: publication_type
+        description: Type of publication (e.g., newspaper, magazine)
+      - name: frequency
+        description: Publication frequency (e.g., daily, weekly, monthly)
+      - name: is_active
+        description: Whether the publication is currently active
+
+  - name: dim_piece
+    description: >
+      Content piece dimension containing article metadata including category,
+      author, premium status, and word count. One row per article.
+    columns:
+      - name: piece_key
+        description: Surrogate primary key for the content piece dimension
+        tests:
+          - unique
+          - not_null
+      - name: article_id
+        description: Natural key from source system
+      - name: publication_id
+        description: Foreign key to the publication this article belongs to
+      - name: author_id
+        description: Author of the article
+      - name: title
+        description: Article title
+      - name: category
+        description: Primary content category
+      - name: subcategory
+        description: Secondary content category
+      - name: word_count
+        description: Number of words in the article
+      - name: is_premium
+        description: Whether the article requires a premium subscription
+
+  - name: dim_date
+    description: >
+      Calendar date dimension generated via date spine. Contains standard
+      calendar attributes for BI slicing and filtering. One row per day.
+    columns:
+      - name: date_key
+        description: Surrogate primary key for the date dimension
+        tests:
+          - unique
+          - not_null
+      - name: date_day
+        description: Calendar date
+      - name: calendar_year
+        description: Four-digit year
+      - name: calendar_quarter
+        description: Quarter of year (1-4)
+      - name: calendar_month
+        description: Month of year (1-12)
+      - name: calendar_week
+        description: ISO week of year
+      - name: calendar_day
+        description: Day of month
+      - name: day_of_week
+        description: Day of week (0=Sunday, 6=Saturday)
+      - name: day_name
+        description: Day name (Mon, Tue, etc.)
+      - name: month_name
+        description: Month name (Jan, Feb, etc.)
+      - name: is_weekend
+        description: Whether the date falls on Saturday or Sunday
+
+  - name: fct_readership
+    description: >
+      Readership fact table combining all reader engagement events (web, mobile,
+      print) enriched with subscription context. One row per readership event.
+      Conforms to dim_reader, dim_publication, dim_piece, and dim_date.
+    columns:
+      - name: readership_event_pk
+        description: Primary key inherited from int_readership_events
+        tests:
+          - unique
+          - not_null
+      - name: reader_key
+        description: Foreign key to dim_reader
+      - name: piece_key
+        description: Foreign key to dim_piece (null for non-article events)
+      - name: publication_key
+        description: Foreign key to dim_publication
+      - name: date_key
+        description: Foreign key to dim_date
+      - name: channel
+        description: Engagement channel (web, mobile, print)
+        tests:
+          - accepted_values:
+              values: ['web', 'mobile', 'print']
+      - name: event_type
+        description: Type of engagement event
+      - name: event_timestamp
+        description: When the event occurred
+      - name: event_date
+        description: Date the event occurred (for date dimension join)
+      - name: engagement_duration_seconds
+        description: Time spent engaging with content in seconds
+      - name: scroll_depth_percent
+        description: How far the reader scrolled (0-100)
+      - name: is_identified
+        description: Whether the reader was identified (has reader_id)
+      - name: plan_type
+        description: Subscription plan type at time of event
+      - name: plan_tier
+        description: Subscription plan tier at time of event
+      - name: subscription_is_active
+        description: Whether the reader had an active subscription
+      - name: subscription_is_premium
+        description: Whether the reader had a premium subscription
+      - name: subscription_tenure_months
+        description: Months since subscription start at time of event
